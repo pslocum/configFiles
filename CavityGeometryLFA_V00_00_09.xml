@@ -1,0 +1,41 @@
+<!-- coils exported from python -->
+<external_define name="solenoidFieldX" value="0.0"/>
+<external_define name="solenoidFieldY" value="0.0"/>
+<external_define name="solenoidFieldZ" value="0.00"/>
+<external_define name="current" value="1.000000"/>
+<external_define name="coil_length" value="0.001"/>
+<external_define name="radial_width" value="0.001"/>
+<external_define name="alignment" value="0.0"/>
+
+<geometry>
+
+
+<!-- assembly -->
+<space name="project8_assembly">
+</space>
+
+<cylinder_space name="world_space" z1="-50" z2="50" r="20"/>
+<space name="world" node="world_space">
+  <space name="project8" tree="project8_assembly">
+    <transformation rotation_axis_angle="[alignment] 90. 90."/>
+  </space>
+</space>
+
+<!-- electromagnets -->
+
+<!-- VTK appearance -->
+
+</geometry>
+
+<kemfield>
+    <constant_magnetic_field
+        name="background_field"
+        field="0. 0. [solenoidFieldZ]"
+            />
+    <magnetic_superposition_field
+        name="total_magnetic_field"
+        use_caching="false"
+            >
+        <add_field name="background_field" enhancement="1.0" />
+    </magnetic_superposition_field>
+</kemfield>

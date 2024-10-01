@@ -1,0 +1,110 @@
+<external_define name="solenoidIoffeFieldX" value="0.0"/>
+<external_define name="solenoidIoffeFieldY" value="0.0"/>
+<external_define name="solenoidIoffeFieldZ" value="0.0"/>
+<external_define name="ioffe_current" value="1000."/>
+<external_define name="T" value="0.0025"/> <!-- wire radius -->
+
+<geometry>
+
+<tag name="ioffe_magnet_tag">
+    <rod_space name="ioffe_bar">
+        <rod name="ioffe_locus_rod" radius="[T]" longitudinal_mesh_count="100" axial_mesh_count="12">
+            <vertex x="0.1" y="0.0" z="-1.5"/>
+            <vertex x="0.1" y="0.0" z="1.5"/>
+        </rod>
+    </rod_space>
+</tag>
+
+
+<tag name="test_rod_surface">
+    <rod_surface name="example_rod_surface">
+        <rod name="ioffe_locus_rod" />
+            <rod name="ioffe_locus_surface" radius="[T]" longitudinal_mesh_count="100" axial_mesh_count="12">
+            <vertex x="0.1" y="0.0" z="-1.5"/>
+            <vertex x="0.1" y="0.0" z="1.5"/>            
+        </rod>
+    </rod_surface>
+</tag>
+
+
+<!-- assembly -->
+<space name="project8_ioffe_assembly">    
+    <surface name="loop_check" node="example_rod_surface">
+    </surface>    
+    <space name="ioffe_trap" node="ioffe_bar">
+    </space>    
+</space>
+
+<cylinder_space name="world_space_ioffe" z1="-5000" z2="5000" r="20"/>
+<space name="world_ioffe" node="world_space_ioffe">
+  <space name="project8" tree="project8_assembly"/>
+  <space name="project8_ioffe" tree="project8_ioffe_assembly"/>
+</space>
+
+<!-- electromagnets -->
+
+<electromagnet name="electromagnet_solenoid" spaces="@ioffe_magnet_tag" current="[ioffe_current]"/>
+
+<!-- VTK appearance -->
+<appearance name="app_magnet" color="50 205 50 255" arc="72" surfaces="@ioffe_magnet_tag"/>
+<appearance name="app_ioffe_wires" color="127 0 0 127" arc="72" surfaces="@test_rod_surface"/>
+
+</geometry>
+
+<kemfield>
+
+<!-- Import a field map from a *.vti file. If using this, comment out the fields 
+<magnetic_superposition_field/> and <magnetic_fieldmap_calculator/> below. -->
+<!--
+    <magnetic_fieldmap
+       name="total_combined_magnetic_field"
+        directory="/usr/local/p8/kassiopeia/v4.0.0/scratch/KEMField"
+        file="TotalMagneticFieldMap.vti"
+        interpolation="linear"
+        magnetic_gradient_numerical="true"
+        />        
+-->
+
+    <!-- fields -->
+    <electromagnet_field
+        name="ioffe_field"
+        file="Project8Ioffe.kbd"
+        system="world_ioffe"
+        spaces="@ioffe_magnet_tag"
+    >
+        <integrating_field_solver/>
+    </electromagnet_field>
+
+
+    <constant_magnetic_field
+        name="fake_background_field"
+        field="0. 0. [solenoidIoffeFieldZ]"
+            />
+
+    <!-- Calculate the field as defined above. -->   
+    <magnetic_superposition_field
+        name="total_combined_magnetic_field"
+        use_caching="false"
+        >            
+        <add_field name="ioffe_field" enhancement="1.0" />
+    </magnetic_superposition_field>
+    
+    <!-- Export the field map as calculated above. -->
+    <!--
+     <magnetic_fieldmap_calculator
+            name="magnetic_field_map_calculator"
+            field="total_combined_magnetic_field"
+            file="TotalMagneticFieldMap.vti"
+            force_update="false"
+            center="0. 0. 0."
+            length="2.5e-1 2.5e-1 6.0"
+            spacing="1e-2"
+            mirror_x="false"
+            mirror_y="false"
+            mirror_z="false"
+    />
+    -->
+    
+        
+</kemfield>
+
